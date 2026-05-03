@@ -189,16 +189,16 @@
             transition: stroke-dashoffset 1.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Plane bob when en route */
-        @keyframes planeBob {
-            0%, 100% { transform: translateY(-1.8px); }
-            50%       { transform: translateY(1.8px);  }
+        /* Plane breathing when en route */
+        @keyframes planeBreathe {
+            0%, 100% { transform: scale(1);    opacity: 1;   }
+            50%       { transform: scale(1.22); opacity: 0.8; }
         }
 
         /* Plane pulse when boarding */
         @keyframes planePulse {
-            0%, 100% { opacity: 1;   }
-            50%       { opacity: 0.4; }
+            0%, 100% { transform: scale(1);    opacity: 1;   }
+            50%       { transform: scale(0.82); opacity: 0.5; }
         }
 
         /* Departure dot pulse when boarding */
@@ -214,8 +214,8 @@
             100% { r: 4;   }
         }
 
-        .svg-flying   #svgPlaneBob { animation: planeBob   1.2s ease-in-out infinite; }
-        .svg-boarding #svgPlaneBob { animation: planePulse 1.8s ease-in-out infinite; }
+        .svg-flying   #svgPlaneBob { animation: planeBreathe 2s ease-in-out infinite; }
+        .svg-boarding #svgPlaneBob { animation: planePulse  1.6s ease-in-out infinite; }
 
         /* ── Ticket cutout ── */
         .ticket-cutout {

@@ -6,7 +6,7 @@
     <title>Luggage Contact Card</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #EA5C1F;
@@ -167,57 +167,57 @@
             margin-top: 0.25rem;
         }
 
+        /* ── SVG Flight Progress Track ── */
         .flight-line {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 0 1rem;
+            padding: 0 0.75rem;
             position: relative;
-            top: -8px;
+            top: -6px;
         }
 
-        .line-container {
+        .flight-svg {
             width: 100%;
-            display: flex;
-            align-items: center;
+            height: 52px;
+            overflow: visible;
         }
 
-        .line-dot {
-            width: 6px;
-            height: 2px;
-            background: rgba(234, 92, 31, 0.3);
-            border-radius: 1px;
+        /* Smooth progress fill animation on page load */
+        #svgProgFill {
+            transition: stroke-dashoffset 1.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .line {
-            flex: 1;
-            height: 2px;
-            background: var(--primary);
-            position: relative;
-            margin: 0 4px;
+        /* Plane bob when en route */
+        @keyframes planeBob {
+            0%, 100% { transform: translateY(-1.8px); }
+            50%       { transform: translateY(1.8px);  }
         }
 
-        .plane-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(90deg);
-            width: 20px;
-            height: 20px;
-            fill: var(--primary);
+        /* Plane pulse when boarding */
+        @keyframes planePulse {
+            0%, 100% { opacity: 1;   }
+            50%       { opacity: 0.4; }
         }
 
-        .flight-type {
-            font-size: 0.6rem;
-            color: var(--primary);
-            opacity: 0.8;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-top: 0.5rem;
+        /* Departure dot pulse when boarding */
+        @keyframes depDotPulse {
+            0%, 100% { r: 3.5; opacity: 0.6; }
+            50%       { r: 5;   opacity: 1;   }
         }
 
+        /* Arrival dot grow when landed */
+        @keyframes arrDotGrow {
+            0%   { r: 3.5; }
+            60%  { r: 6;   }
+            100% { r: 4;   }
+        }
+
+        .svg-flying   #svgPlaneBob { animation: planeBob   1.2s ease-in-out infinite; }
+        .svg-boarding #svgPlaneBob { animation: planePulse 1.8s ease-in-out infinite; }
+
+        /* ── Ticket cutout ── */
         .ticket-cutout {
             position: relative;
             height: 24px;
@@ -255,9 +255,10 @@
             border-radius: 50%;
         }
 
-        .circle-left { left: -12px; }
+        .circle-left  { left: -12px;  }
         .circle-right { right: -12px; }
 
+        /* ── Card body ── */
         .card-body {
             padding: 1.5rem;
             padding-top: 0.5rem;
@@ -281,29 +282,10 @@
             border: 1px solid;
         }
 
-        .status-badge.boarding {
-            background: #DBEAFE;
-            color: #1E40AF;
-            border-color: #BFDBFE;
-        }
-
-        .status-badge.landed {
-            background: #D1FAE5;
-            color: #065F46;
-            border-color: #A7F3D0;
-        }
-
-        .status-badge.transit {
-            background: #FEF3C7;
-            color: #92400E;
-            border-color: #FDE68A;
-        }
-
-        .status-badge.scheduled {
-            background: #F3F4F6;
-            color: #374151;
-            border-color: #E5E7EB;
-        }
+        .status-badge.boarding  { background: #DBEAFE; color: #1E40AF; border-color: #BFDBFE; }
+        .status-badge.landed    { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
+        .status-badge.transit   { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+        .status-badge.scheduled { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
 
         .status-dot {
             width: 8px;
@@ -313,14 +295,14 @@
             animation: pulse 2s infinite;
         }
 
-        .status-badge.boarding .status-dot { background: #3B82F6; }
-        .status-badge.landed .status-dot { background: #10B981; }
-        .status-badge.transit .status-dot { background: #F59E0B; }
+        .status-badge.boarding  .status-dot { background: #3B82F6; }
+        .status-badge.landed    .status-dot { background: #10B981; }
+        .status-badge.transit   .status-dot { background: #F59E0B; }
         .status-badge.scheduled .status-dot { background: #6B7280; }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1;   }
+            50%       { opacity: 0.5; }
         }
 
         .detail-row {
@@ -334,9 +316,7 @@
             color: inherit;
         }
 
-        a.detail-row:hover {
-            background: rgba(0,0,0,0.03);
-        }
+        a.detail-row:hover { background: rgba(0,0,0,0.03); }
 
         .detail-icon {
             flex-shrink: 0;
@@ -347,10 +327,7 @@
             opacity: 0.8;
         }
 
-        .detail-content {
-            margin-left: 1rem;
-            flex: 1;
-        }
+        .detail-content { margin-left: 1rem; flex: 1; }
 
         .detail-label {
             font-size: 0.65rem;
@@ -389,7 +366,6 @@
             color: var(--text-muted);
         }
 
-
         .branding {
             margin-top: 2rem;
             text-align: center;
@@ -402,7 +378,50 @@
             color: var(--dark);
         }
 
-        /* Modal Styles */
+        /* ── Adventure "Begins" overlay ── */
+        .adventure-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 900;
+        }
+
+        .adventure-overlay.active { display: flex; }
+
+        .adventure-mountains {
+            width: 300px;
+            max-width: 88vw;
+        }
+
+        .adventure-text-wrap {
+            text-align: center;
+            margin-top: -0.5rem;
+        }
+
+        .adventure-script {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(2.5rem, 10vw, 3.8rem);
+            color: #111;
+            line-height: 1;
+            display: block;
+        }
+
+        .adventure-bold {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(2.5rem, 10vw, 3.8rem);
+            font-weight: 700;
+            color: #111;
+            letter-spacing: 0.12em;
+            line-height: 1;
+            display: block;
+            margin-top: -0.15em;
+        }
+
+        /* ── Modal ── */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -417,9 +436,7 @@
             padding: 1rem;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
             background: white;
@@ -436,19 +453,11 @@
             border-bottom: 1px solid var(--light-grey);
         }
 
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text);
-        }
+        .modal-title { font-size: 1.25rem; font-weight: 600; color: var(--text); }
 
-        .modal-body {
-            padding: 1.5rem;
-        }
+        .modal-body { padding: 1.5rem; }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .form-group { margin-bottom: 1rem; }
 
         .form-label {
             display: block;
@@ -476,11 +485,7 @@
             box-shadow: 0 0 0 3px rgba(234, 92, 31, 0.1);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
         .flight-lookup-box {
             background: rgba(234, 92, 31, 0.05);
@@ -514,33 +519,12 @@
             border: none;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #D14F17;
-        }
-
-        .btn-primary:disabled {
-            background: var(--light-grey);
-            cursor: not-allowed;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--light-grey);
-            color: var(--text);
-        }
-
-        .btn-outline:hover {
-            background: rgba(0,0,0,0.03);
-        }
-
-        .btn-full {
-            width: 100%;
-        }
+        .btn-primary            { background: var(--primary); color: white; }
+        .btn-primary:hover      { background: #D14F17; }
+        .btn-primary:disabled   { background: var(--light-grey); cursor: not-allowed; }
+        .btn-outline            { background: transparent; border: 1px solid var(--light-grey); color: var(--text); }
+        .btn-outline:hover      { background: rgba(0,0,0,0.03); }
+        .btn-full               { width: 100%; }
 
         .modal-footer {
             display: flex;
@@ -550,10 +534,7 @@
             border-top: 1px solid var(--light-grey);
         }
 
-        .password-container {
-            text-align: center;
-            padding: 2rem 1.5rem;
-        }
+        .password-container { text-align: center; padding: 2rem 1.5rem; }
 
         .lock-icon {
             width: 48px;
@@ -566,28 +547,12 @@
             margin: 0 auto 1rem;
         }
 
-        .lock-icon svg {
-            width: 24px;
-            height: 24px;
-            color: var(--primary);
-        }
+        .lock-icon svg { width: 24px; height: 24px; color: var(--primary); }
 
-        .password-text {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
+        .password-text { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
 
-        .api-key-note {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-            line-height: 1.4;
-        }
-
-        .api-key-note a {
-            color: var(--primary);
-        }
+        .api-key-note { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4; }
+        .api-key-note a { color: var(--primary); }
 
         .toast {
             position: fixed;
@@ -605,17 +570,9 @@
             z-index: 2000;
         }
 
-        .toast.active {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast.error {
-            background: #DC2626;
-        }
-
-        .toast.success {
-            background: #059669;
-        }
+        .toast.active   { transform: translateX(-50%) translateY(0); }
+        .toast.error    { background: #DC2626; }
+        .toast.success  { background: #059669; }
 
         .loading {
             display: inline-block;
@@ -628,34 +585,15 @@
             margin-right: 0.5rem;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 480px) {
-            body {
-                padding: 0.5rem;
-            }
-
-            .card {
-                border-radius: 20px;
-            }
-
-            .card-header {
-                padding: 1.25rem;
-            }
-
-            .airport-code {
-                font-size: 2rem;
-            }
-
-            .modal {
-                border-radius: 12px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+            body           { padding: 0.5rem; }
+            .card          { border-radius: 20px; }
+            .card-header   { padding: 1.25rem; }
+            .airport-code  { font-size: 2rem; }
+            .modal         { border-radius: 12px; }
+            .form-row      { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -686,17 +624,53 @@
                     <p class="airport-time" id="displayDepartureTime">09:20 AM</p>
                 </div>
 
+                <!-- ── Animated SVG flight progress track ── -->
                 <div class="flight-line">
-                    <div class="line-container">
-                        <div class="line-dot"></div>
-                        <div class="line">
-                            <svg class="plane-icon" viewBox="0 0 24 24">
-                                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
-                            </svg>
-                        </div>
-                        <div class="line-dot"></div>
-                    </div>
-                    <p class="flight-type">Non-stop</p>
+                    <svg id="flightProgressSvg" class="flight-svg" viewBox="0 0 200 50" preserveAspectRatio="xMidYMid meet">
+
+                        <!-- Departure dot -->
+                        <circle id="svgDepDot" cx="10" cy="20" r="3.5" fill="#EA5C1F" opacity="0.55"/>
+
+                        <!-- Full dashed track (background) -->
+                        <line x1="10" y1="20" x2="190" y2="20"
+                              stroke="rgba(234,92,31,0.18)" stroke-width="1.8"
+                              stroke-dasharray="4 3.5" stroke-linecap="round"/>
+
+                        <!-- Progress fill: full-length line revealed via stroke-dashoffset -->
+                        <line id="svgProgFill"
+                              x1="10" y1="20" x2="190" y2="20"
+                              stroke="#EA5C1F" stroke-width="2.8" stroke-linecap="round"
+                              stroke-dasharray="180" stroke-dashoffset="180"/>
+
+                        <!-- Arrival dot -->
+                        <circle id="svgArrDot" cx="190" cy="20" r="3.5"
+                                fill="rgba(234,92,31,0.2)"/>
+
+                        <!-- Plane group — outer translate moves it along the track -->
+                        <g id="svgPlaneGrp" transform="translate(10,20)">
+                            <!-- Inner group carries the bob / pulse animation -->
+                            <g id="svgPlaneBob">
+                                <!--
+                                  Original path is 24×24, pointing UP.
+                                  rotate(-90) makes it point RIGHT.
+                                  scale(0.72) shrinks to ~17 px.
+                                  translate(-11.5,-12) centres on origin before rotation.
+                                -->
+                                <g transform="rotate(-90) scale(0.72) translate(-11.5,-12)">
+                                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"
+                                          fill="#EA5C1F"/>
+                                </g>
+                            </g>
+                        </g>
+
+                        <!-- Label below track -->
+                        <text id="svgTrackLabel"
+                              x="100" y="40"
+                              text-anchor="middle"
+                              fill="#EA5C1F" opacity="0.85"
+                              font-size="6.8" font-weight="700" letter-spacing="1.6"
+                              font-family="'DM Sans', sans-serif">NON-STOP</text>
+                    </svg>
                 </div>
 
                 <div class="airport right">
@@ -810,6 +784,61 @@
 
     <div class="branding">
         <p class="branding-text">Luggage Contact Card System</p>
+    </div>
+
+    <!-- ── Adventure "Begins" overlay (shown 10 days after arrival) ── -->
+    <div class="adventure-overlay" id="adventureOverlay">
+        <!--
+          Hand-drawn style mountain SVG.
+          Main peak centre-left, secondary peak right.
+          Sketch / hatch lines on both faces.
+        -->
+        <svg class="adventure-mountains" viewBox="0 0 320 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Main peak left outline -->
+            <path d="M 18,148
+                     C 35,135 55,118 70,105
+                     C 80,96  90,85  100,72
+                     C 108,61 116,48 124,34
+                     L 132,18
+                     L 140,34
+                     C 148,48 157,62 167,74
+                     C 178,88 192,104 210,118
+                     C 225,130 245,140 262,148"
+                  stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <!-- Snow cap / rocky peak detail -->
+            <path d="M 132,18 L 121,40 L 127,37 L 132,28 L 137,37 L 143,40 Z"
+                  fill="#111"/>
+
+            <!-- Left-face hatch lines -->
+            <line x1="103" y1="76"  x2="93"  y2="85"  stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="95"  y1="93"  x2="83"  y2="103" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="86"  y1="111" x2="74"  y2="120" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="76"  y1="128" x2="63"  y2="137" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+
+            <!-- Right-face hatch lines -->
+            <line x1="162" y1="56"  x2="172" y2="65"  stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="171" y1="74"  x2="182" y2="84"  stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="181" y1="92"  x2="194" y2="102" stroke="#111" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="194" y1="110" x2="208" y2="120" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+
+            <!-- Secondary smaller peak (right) -->
+            <path d="M 210,148
+                     C 224,138 238,124 248,110
+                     L 258,96
+                     L 268,110
+                     C 278,124 290,136 304,148"
+                  stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+
+            <!-- Right peak hatch -->
+            <line x1="252" y1="104" x2="261" y2="112" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+            <line x1="258" y1="118" x2="269" y2="126" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+
+        <div class="adventure-text-wrap">
+            <span class="adventure-script">Adventure</span>
+            <span class="adventure-bold">BEGINS</span>
+        </div>
     </div>
 
     <!-- Modal Overlay -->
@@ -953,62 +982,33 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Default data
+        // ── Default data ──────────────────────────────────────────────────────────
         const defaultData = {
-            passengerName: "Indika Amarasinghe",
-            flightNumber: "UL604",
-            flightDate: "",
-            fromCity: "City Name 1",
-            fromCode: "PHL",
-            toCity: "City Name 2",
-            toCode: "SDN",
-            departureTime: "09:20 AM",
-            arrivalTime: "03:30 PM",
-            departureDateTime: "", // Full ISO datetime for status calculation
-            arrivalDateTime: "",   // Full ISO datetime for status calculation
-            contactNumber: "+94777351292",
-            email: "imarasinghe96@gmail.com",
-            departureAddress: "162/1, Xavier rd, 2nd Lane, Hettigama, Ja-ela, Sri Lanka",
-            departureContact: "+94718739172 - Nuwan",
+            passengerName:      "Indika Amarasinghe",
+            flightNumber:       "UL604",
+            flightDate:         "",          // "YYYY-MM-DD" — used for progress when no API datetimes
+            fromCity:           "City Name 1",
+            fromCode:           "PHL",
+            toCity:             "City Name 2",
+            toCode:             "SDN",
+            departureTime:      "09:20 AM",
+            arrivalTime:        "03:30 PM",
+            departureDateTime:  "",          // Full ISO set by API lookup
+            arrivalDateTime:    "",
+            contactNumber:      "+94777351292",
+            email:              "imarasinghe96@gmail.com",
+            departureAddress:   "162/1, Xavier rd, 2nd Lane, Hettigama, Ja-ela, Sri Lanka",
+            departureContact:   "+94718739172 - Nuwan",
             destinationAddress: "7/634 Loma Place, Albury NSW 2640",
             destinationContact: "+61 499 736 060 - Guvani",
-            apiKey: "24c7b84b1acbb9c076d8da633064fe26"
+            apiKey:             "24c7b84b1acbb9c076d8da633064fe26"
         };
-        
-        // Calculate flight status based on current time
-        function calculateFlightStatus(data) {
-            if (!data.departureDateTime || !data.arrivalDateTime) {
-                return "Scheduled";
-            }
-            
-            const now = new Date();
-            const departure = new Date(data.departureDateTime);
-            const arrival = new Date(data.arrivalDateTime);
-            
-            // Check if dates are valid
-            if (isNaN(departure.getTime()) || isNaN(arrival.getTime())) {
-                return "Scheduled";
-            }
-            
-            const oneHourBeforeDeparture = new Date(departure.getTime() - 60 * 60 * 1000);
-            
-            if (now < oneHourBeforeDeparture) {
-                return "Scheduled";
-            } else if (now >= oneHourBeforeDeparture && now < departure) {
-                return "Boarding";
-            } else if (now >= departure && now < arrival) {
-                return "En Route";
-            } else {
-                return "Landed";
-            }
-        }
 
-        // Load data from localStorage or use defaults
+        // ── Storage ───────────────────────────────────────────────────────────────
         function loadData() {
             const saved = localStorage.getItem('luggageContactData');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                // Check if using old format (contact info in address) - reset if so
                 if (!parsed.departureContact || parsed.departureAddress?.includes('+94718739172')) {
                     localStorage.removeItem('luggageContactData');
                     return defaultData;
@@ -1018,220 +1018,310 @@
             return defaultData;
         }
 
-        // Save data to localStorage
         function saveData(data) {
             localStorage.setItem('luggageContactData', JSON.stringify(data));
         }
 
-        // Update display
+        // ── Date helpers ──────────────────────────────────────────────────────────
+
+        /**
+         * Parse a date string ("YYYY-MM-DD") and time string ("09:20 AM")
+         * into a local Date object. Returns null on failure.
+         */
+        function parseFlightDateTime(dateStr, timeStr) {
+            if (!dateStr || !timeStr) return null;
+            try {
+                const m = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                if (!m) return null;
+                let h = parseInt(m[1], 10);
+                const min = parseInt(m[2], 10);
+                const meridiem = m[3].toUpperCase();
+                if (meridiem === 'PM' && h !== 12) h += 12;
+                if (meridiem === 'AM' && h === 12) h = 0;
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return null;
+                d.setHours(h, min, 0, 0);
+                return d;
+            } catch { return null; }
+        }
+
+        /**
+         * Determine the best departure/arrival Date objects from stored data.
+         * Priority: API datetimes → flightDate + time strings → null.
+         */
+        function getEffectiveDateTimes(data) {
+            if (data.departureDateTime && data.arrivalDateTime) {
+                const dep = new Date(data.departureDateTime);
+                const arr = new Date(data.arrivalDateTime);
+                if (!isNaN(dep) && !isNaN(arr)) return { dep, arr };
+            }
+            if (data.flightDate) {
+                const dep = parseFlightDateTime(data.flightDate, data.departureTime);
+                let arr  = parseFlightDateTime(data.flightDate, data.arrivalTime);
+                if (dep && arr) {
+                    // If arrival appears to be before departure, the flight crosses midnight
+                    if (arr < dep) arr = new Date(arr.getTime() + 86400000);
+                    return { dep, arr };
+                }
+            }
+            return { dep: null, arr: null };
+        }
+
+        // ── Flight progress calculation ───────────────────────────────────────────
+
+        /**
+         * Returns { pct: 0–100, status: 'scheduled'|'boarding'|'enroute'|'landed' }
+         */
+        function getFlightProgress(data) {
+            const { dep, arr } = getEffectiveDateTimes(data);
+
+            if (!dep || !arr) {
+                return { pct: 0, status: 'scheduled' };
+            }
+
+            const now  = new Date();
+            const oneHrBefore = new Date(dep.getTime() - 3600000);
+
+            if (now < oneHrBefore) {
+                return { pct: 0, status: 'scheduled' };
+            } else if (now < dep) {
+                return { pct: 0, status: 'boarding' };
+            } else if (now < arr) {
+                const pct = Math.min(100, Math.max(0, ((now - dep) / (arr - dep)) * 100));
+                return { pct, status: 'enroute' };
+            } else {
+                return { pct: 100, status: 'landed' };
+            }
+        }
+
+        // ── SVG flight progress updater ───────────────────────────────────────────
+
+        function updateFlightProgress(data) {
+            const { pct, status } = getFlightProgress(data);
+
+            const svg       = document.getElementById('flightProgressSvg');
+            const progFill  = document.getElementById('svgProgFill');
+            const planeGrp  = document.getElementById('svgPlaneGrp');
+            const arrDot    = document.getElementById('svgArrDot');
+            const trackLbl  = document.getElementById('svgTrackLabel');
+
+            // Progress line: dashoffset 180 = empty, 0 = full (track x1=10 to x2=190, length=180)
+            progFill.style.strokeDashoffset = 180 * (1 - pct / 100);
+
+            // Plane position along track
+            const planeX = 10 + (pct / 100) * 180;
+            planeGrp.setAttribute('transform', `translate(${planeX.toFixed(1)}, 20)`);
+
+            // Arrival dot: highlight when landed
+            arrDot.setAttribute('fill',    pct >= 100 ? '#EA5C1F'           : 'rgba(234,92,31,0.2)');
+            arrDot.setAttribute('opacity', pct >= 100 ? '1'                 : '1');
+
+            // Track label
+            const labels = { scheduled: 'NON-STOP', boarding: 'BOARDING', enroute: 'EN ROUTE', landed: 'ARRIVED' };
+            trackLbl.textContent = labels[status] || 'NON-STOP';
+
+            // Animation classes on SVG element
+            svg.classList.remove('svg-scheduled', 'svg-boarding', 'svg-flying', 'svg-landed');
+            svg.classList.add('svg-' + (status === 'enroute' ? 'flying' : status));
+        }
+
+        // ── Status badge ─────────────────────────────────────────────────────────
+
+        function calculateFlightStatus(data) {
+            const { status } = getFlightProgress(data);
+            return { scheduled: 'Scheduled', boarding: 'Boarding', enroute: 'En Route', landed: 'Landed' }[status] || 'Scheduled';
+        }
+
+        // ── Adventure mode (10 days after arrival) ────────────────────────────────
+
+        function checkAdventureMode(data) {
+            const { arr } = getEffectiveDateTimes(data);
+            if (!arr) return false;
+
+            const tenDaysAfter = new Date(arr.getTime() + 10 * 86400000);
+            if (new Date() > tenDaysAfter) {
+                document.getElementById('adventureOverlay').classList.add('active');
+                return true;
+            }
+            return false;
+        }
+
+        // ── Display ───────────────────────────────────────────────────────────────
+
         function updateDisplay(data) {
-            document.getElementById('displayPassengerName').textContent = data.passengerName;
-            document.getElementById('displayFlightNumber').textContent = data.flightNumber;
-            document.getElementById('displayFromCode').textContent = data.fromCode;
-            document.getElementById('displayFromCity').textContent = data.fromCity;
-            document.getElementById('displayToCode').textContent = data.toCode;
-            document.getElementById('displayToCity').textContent = data.toCity;
-            document.getElementById('displayDepartureTime').textContent = data.departureTime;
-            document.getElementById('displayArrivalTime').textContent = data.arrivalTime;
-            document.getElementById('displayContactNumber').textContent = data.contactNumber;
-            document.getElementById('displayEmail').textContent = data.email;
+            document.getElementById('displayPassengerName').textContent    = data.passengerName;
+            document.getElementById('displayFlightNumber').textContent     = data.flightNumber;
+            document.getElementById('displayFromCode').textContent         = data.fromCode;
+            document.getElementById('displayFromCity').textContent         = data.fromCity;
+            document.getElementById('displayToCode').textContent           = data.toCode;
+            document.getElementById('displayToCity').textContent           = data.toCity;
+            document.getElementById('displayDepartureTime').textContent    = data.departureTime;
+            document.getElementById('displayArrivalTime').textContent      = data.arrivalTime;
+            document.getElementById('displayContactNumber').textContent    = data.contactNumber;
+            document.getElementById('displayEmail').textContent            = data.email;
             document.getElementById('displayDepartureAddress').textContent = data.departureAddress;
             document.getElementById('displayDepartureContact').textContent = data.departureContact || '';
             document.getElementById('displayDestinationAddress').textContent = data.destinationAddress;
             document.getElementById('displayDestinationContact').textContent = data.destinationContact || '';
-            
-            // Calculate and display flight status automatically
-            const flightStatus = calculateFlightStatus(data);
-            document.getElementById('displayFlightStatus').textContent = flightStatus;
 
-            // Update links
-            document.getElementById('phoneLink').href = `tel:${data.contactNumber}`;
-            document.getElementById('emailLink').href = `mailto:${data.email}`;
-            document.getElementById('departureAddressLink').href = `https://maps.google.com/?q=${encodeURIComponent(data.departureAddress)}`;
-            document.getElementById('departureContactLink').href = `tel:${(data.departureContact || '').replace(/[^+\d]/g, '')}`;
+            // Links
+            document.getElementById('phoneLink').href              = `tel:${data.contactNumber}`;
+            document.getElementById('emailLink').href              = `mailto:${data.email}`;
+            document.getElementById('departureAddressLink').href   = `https://maps.google.com/?q=${encodeURIComponent(data.departureAddress)}`;
+            document.getElementById('departureContactLink').href   = `tel:${(data.departureContact || '').replace(/[^+\d]/g, '')}`;
             document.getElementById('destinationAddressLink').href = `https://maps.google.com/?q=${encodeURIComponent(data.destinationAddress)}`;
             document.getElementById('destinationContactLink').href = `tel:${(data.destinationContact || '').replace(/[^+\d]/g, '')}`;
 
-            // Update status badge styling
-            const badge = document.getElementById('statusBadge');
+            // Status badge
+            const flightStatus = calculateFlightStatus(data);
+            document.getElementById('displayFlightStatus').textContent = flightStatus;
+            const badge  = document.getElementById('statusBadge');
             badge.className = 'status-badge';
-            const status = flightStatus.toLowerCase();
-            if (status.includes('landed')) badge.classList.add('landed');
-            else if (status.includes('route')) badge.classList.add('transit');
-            else if (status.includes('boarding')) badge.classList.add('boarding');
-            else badge.classList.add('scheduled');
+            const sl = flightStatus.toLowerCase();
+            if      (sl.includes('landed'))   badge.classList.add('landed');
+            else if (sl.includes('route'))    badge.classList.add('transit');
+            else if (sl.includes('boarding')) badge.classList.add('boarding');
+            else                              badge.classList.add('scheduled');
+
+            // SVG flight progress
+            updateFlightProgress(data);
+
+            // Adventure mode check
+            checkAdventureMode(data);
         }
 
-        // Fill form with current data
+        // ── Form helpers ──────────────────────────────────────────────────────────
+
         function fillForm(data) {
-            document.getElementById('inputPassengerName').value = data.passengerName;
-            document.getElementById('inputFlightNumber').value = data.flightNumber;
-            document.getElementById('inputFlightDate').value = data.flightDate;
-            document.getElementById('inputFromCode').value = data.fromCode;
-            document.getElementById('inputFromCity').value = data.fromCity;
-            document.getElementById('inputToCode').value = data.toCode;
-            document.getElementById('inputToCity').value = data.toCity;
-            document.getElementById('inputDepartureTime').value = data.departureTime;
-            document.getElementById('inputArrivalTime').value = data.arrivalTime;
-            document.getElementById('inputContactNumber').value = data.contactNumber;
-            document.getElementById('inputEmail').value = data.email;
-            document.getElementById('inputDepartureAddress').value = data.departureAddress;
-            document.getElementById('inputDepartureContact').value = data.departureContact || '';
-            document.getElementById('inputDestinationAddress').value = data.destinationAddress;
-            document.getElementById('inputDestinationContact').value = data.destinationContact || '';
-            document.getElementById('inputApiKey').value = data.apiKey || '';
+            document.getElementById('inputPassengerName').value     = data.passengerName;
+            document.getElementById('inputFlightNumber').value      = data.flightNumber;
+            document.getElementById('inputFlightDate').value        = data.flightDate;
+            document.getElementById('inputFromCode').value          = data.fromCode;
+            document.getElementById('inputFromCity').value          = data.fromCity;
+            document.getElementById('inputToCode').value            = data.toCode;
+            document.getElementById('inputToCity').value            = data.toCity;
+            document.getElementById('inputDepartureTime').value     = data.departureTime;
+            document.getElementById('inputArrivalTime').value       = data.arrivalTime;
+            document.getElementById('inputContactNumber').value     = data.contactNumber;
+            document.getElementById('inputEmail').value             = data.email;
+            document.getElementById('inputDepartureAddress').value  = data.departureAddress;
+            document.getElementById('inputDepartureContact').value  = data.departureContact || '';
+            document.getElementById('inputDestinationAddress').value= data.destinationAddress;
+            document.getElementById('inputDestinationContact').value= data.destinationContact || '';
+            document.getElementById('inputApiKey').value            = data.apiKey || '';
         }
 
-        // Get form data
         function getFormData() {
-            const currentData = loadData();
+            const current = loadData();
             return {
-                passengerName: document.getElementById('inputPassengerName').value,
-                flightNumber: document.getElementById('inputFlightNumber').value,
-                flightDate: document.getElementById('inputFlightDate').value,
-                fromCode: document.getElementById('inputFromCode').value,
-                fromCity: document.getElementById('inputFromCity').value,
-                toCode: document.getElementById('inputToCode').value,
-                toCity: document.getElementById('inputToCity').value,
-                departureTime: document.getElementById('inputDepartureTime').value,
-                arrivalTime: document.getElementById('inputArrivalTime').value,
-                departureDateTime: currentData.departureDateTime || '',
-                arrivalDateTime: currentData.arrivalDateTime || '',
-                contactNumber: document.getElementById('inputContactNumber').value,
-                email: document.getElementById('inputEmail').value,
-                departureAddress: document.getElementById('inputDepartureAddress').value,
-                departureContact: document.getElementById('inputDepartureContact').value,
+                passengerName:      document.getElementById('inputPassengerName').value,
+                flightNumber:       document.getElementById('inputFlightNumber').value,
+                flightDate:         document.getElementById('inputFlightDate').value,
+                fromCode:           document.getElementById('inputFromCode').value,
+                fromCity:           document.getElementById('inputFromCity').value,
+                toCode:             document.getElementById('inputToCode').value,
+                toCity:             document.getElementById('inputToCity').value,
+                departureTime:      document.getElementById('inputDepartureTime').value,
+                arrivalTime:        document.getElementById('inputArrivalTime').value,
+                departureDateTime:  current.departureDateTime || '',
+                arrivalDateTime:    current.arrivalDateTime   || '',
+                contactNumber:      document.getElementById('inputContactNumber').value,
+                email:              document.getElementById('inputEmail').value,
+                departureAddress:   document.getElementById('inputDepartureAddress').value,
+                departureContact:   document.getElementById('inputDepartureContact').value,
                 destinationAddress: document.getElementById('inputDestinationAddress').value,
                 destinationContact: document.getElementById('inputDestinationContact').value,
-                apiKey: document.getElementById('inputApiKey').value
+                apiKey:             document.getElementById('inputApiKey').value
             };
         }
 
-        // Show toast
+        // ── Toast ─────────────────────────────────────────────────────────────────
+
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast active ' + type;
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
+            setTimeout(() => { toast.className = 'toast'; }, 3000);
         }
 
+        // ── Time formatter (API response) ─────────────────────────────────────────
 
-        // Format time from API response (keep local airport time, don't convert timezone)
         function formatTime(timeStr) {
             if (!timeStr) return '';
-            // API returns format like "2024-01-27T09:20:00+00:00"
-            // Extract the time portion without timezone conversion
             const match = timeStr.match(/T(\d{2}):(\d{2})/);
             if (match) {
                 let hours = parseInt(match[1], 10);
                 const minutes = match[2];
                 const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12; // Convert to 12-hour format
+                hours = hours % 12 || 12;
                 return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
             }
             return '';
         }
 
-        // Lookup flight using AviationStack API
+        // ── Flight API lookup ─────────────────────────────────────────────────────
+
         async function lookupFlight() {
             const flightNumber = document.getElementById('inputFlightNumber').value.trim();
-            const apiKey = document.getElementById('inputApiKey').value.trim();
+            const apiKey       = document.getElementById('inputApiKey').value.trim();
 
-            if (!flightNumber) {
-                showToast('Please enter a flight number', 'error');
-                return;
-            }
+            if (!flightNumber) { showToast('Please enter a flight number', 'error'); return; }
+            if (!apiKey)       { showToast('Please enter your AviationStack API key', 'error'); return; }
 
-            if (!apiKey) {
-                showToast('Please enter your AviationStack API key', 'error');
-                return;
-            }
-
-            const lookupBtn = document.getElementById('lookupBtn');
+            const lookupBtn   = document.getElementById('lookupBtn');
             const originalText = lookupBtn.innerHTML;
             lookupBtn.innerHTML = '<span class="loading"></span>Searching...';
             lookupBtn.disabled = true;
 
             try {
-                // AviationStack API URL
                 const apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${flightNumber}`;
-                
-                // Try direct HTTPS first (works if user has paid plan), then fallback to CORS proxies
                 const proxies = [
-                    apiUrl, // Direct (works with paid AviationStack plans that support HTTPS)
+                    apiUrl,
                     `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
                     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`
                 ];
-                
-                let data = null;
-                let lastError = null;
-                
+
+                let data = null, lastError = null;
+
                 for (const proxyUrl of proxies) {
                     try {
-                        const response = await fetch(proxyUrl, { 
-                            method: 'GET',
-                            headers: { 'Accept': 'application/json' }
-                        });
-                        
+                        const response = await fetch(proxyUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
                         if (response.ok) {
                             const text = await response.text();
                             data = JSON.parse(text);
                             if (data && !data.error) break;
                             if (data.error) {
                                 lastError = data.error.message || data.error.info || 'API error';
-                                // If it's an API error (not proxy error), don't try other proxies
                                 if (data.error.code) break;
                             }
                         }
-                    } catch (e) {
-                        lastError = e.message;
-                        continue;
-                    }
+                    } catch (e) { lastError = e.message; continue; }
                 }
-                
-                if (!data) {
-                    throw new Error(lastError || 'Could not connect to flight API');
-                }
-                
-                if (data.error) {
-                    throw new Error(data.error.message || data.error.info || 'API error');
-                }
+
+                if (!data) throw new Error(lastError || 'Could not connect to flight API');
+                if (data.error) throw new Error(data.error.message || data.error.info || 'API error');
 
                 if (data.data && data.data.length > 0) {
                     const flight = data.data[0];
-                    
-                    // Extract city name from airport name (remove airport suffix)
-                    function extractCityName(airportName) {
-                        if (!airportName) return '';
-                        // Common patterns: "Melbourne - Tullamarine Airport", "Katunayake International Airport"
-                        // Take text before " - " or " International" or " Airport"
-                        let city = airportName
-                            .split(' - ')[0]
-                            .split(' International')[0]
-                            .split(' Intl')[0]
-                            .replace(/ Airport$/i, '')
-                            .replace(/ Airfield$/i, '')
-                            .trim();
-                        return city;
-                    }
-                    
-                    // Fill in the form fields
-                    document.getElementById('inputFromCode').value = flight.departure?.iata || '';
-                    document.getElementById('inputToCode').value = flight.arrival?.iata || '';
-                    document.getElementById('inputFromCity').value = extractCityName(flight.departure?.airport) || '';
-                    document.getElementById('inputToCity').value = extractCityName(flight.arrival?.airport) || '';
-                    document.getElementById('inputDepartureTime').value = formatTime(flight.departure?.scheduled) || '';
-                    document.getElementById('inputArrivalTime').value = formatTime(flight.arrival?.scheduled) || '';
-                    
-                    // Store full datetime for automatic status calculation
-                    const currentData = loadData();
-                    currentData.departureDateTime = flight.departure?.scheduled || '';
-                    currentData.arrivalDateTime = flight.arrival?.scheduled || '';
-                    saveData(currentData);
 
-                    // Keep personal addresses - don't overwrite with airport names
+                    function extractCityName(name) {
+                        if (!name) return '';
+                        return name.split(' - ')[0].split(' International')[0].split(' Intl')[0]
+                                   .replace(/ Airport$/i, '').replace(/ Airfield$/i, '').trim();
+                    }
+
+                    document.getElementById('inputFromCode').value     = flight.departure?.iata || '';
+                    document.getElementById('inputToCode').value       = flight.arrival?.iata   || '';
+                    document.getElementById('inputFromCity').value     = extractCityName(flight.departure?.airport) || '';
+                    document.getElementById('inputToCity').value       = extractCityName(flight.arrival?.airport)   || '';
+                    document.getElementById('inputDepartureTime').value= formatTime(flight.departure?.scheduled)    || '';
+                    document.getElementById('inputArrivalTime').value  = formatTime(flight.arrival?.scheduled)      || '';
+
+                    // Persist full ISO datetimes so progress / adventure-mode work precisely
+                    const current = loadData();
+                    current.departureDateTime = flight.departure?.scheduled || '';
+                    current.arrivalDateTime   = flight.arrival?.scheduled   || '';
+                    saveData(current);
 
                     showToast('Flight details loaded successfully!', 'success');
                 } else {
@@ -1242,40 +1332,42 @@
                 showToast('Error: ' + error.message, 'error');
             } finally {
                 lookupBtn.innerHTML = originalText;
-                lookupBtn.disabled = false;
+                lookupBtn.disabled  = false;
             }
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        // ── Init ──────────────────────────────────────────────────────────────────
+
+        document.addEventListener('DOMContentLoaded', function () {
             const data = loadData();
+
+            // Small delay so the CSS transition on #svgProgFill fires visibly on load
             updateDisplay(data);
-            
-            // Update status every minute automatically
-            setInterval(function() {
-                const currentData = loadData();
-                updateDisplay(currentData);
+            setTimeout(() => updateFlightProgress(data), 80);
+
+            // Refresh display every minute (status & progress tick forward)
+            setInterval(() => {
+                const d = loadData();
+                updateDisplay(d);
             }, 60000);
 
-            const modal = document.getElementById('modalOverlay');
+            const modal          = document.getElementById('modalOverlay');
             const passwordScreen = document.getElementById('passwordScreen');
-            const editScreen = document.getElementById('editScreen');
-            const passwordInput = document.getElementById('passwordInput');
+            const editScreen     = document.getElementById('editScreen');
+            const passwordInput  = document.getElementById('passwordInput');
 
-            // Edit button click
-            document.getElementById('editBtn').addEventListener('click', function() {
+            document.getElementById('editBtn').addEventListener('click', function () {
                 modal.classList.add('active');
                 passwordScreen.style.display = 'block';
-                editScreen.style.display = 'none';
-                passwordInput.value = '';
+                editScreen.style.display     = 'none';
+                passwordInput.value          = '';
                 passwordInput.focus();
             });
 
-            // Password unlock
-            document.getElementById('unlockBtn').addEventListener('click', function() {
+            document.getElementById('unlockBtn').addEventListener('click', function () {
                 if (passwordInput.value === 'raksheen96') {
                     passwordScreen.style.display = 'none';
-                    editScreen.style.display = 'block';
+                    editScreen.style.display     = 'block';
                     fillForm(loadData());
                     showToast('Access granted!', 'success');
                 } else {
@@ -1285,39 +1377,31 @@
                 }
             });
 
-            // Enter key on password
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('unlockBtn').click();
-                }
+            passwordInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') document.getElementById('unlockBtn').click();
             });
 
-            // Flight lookup
             document.getElementById('lookupBtn').addEventListener('click', lookupFlight);
 
-            // Cancel
-            document.getElementById('cancelBtn').addEventListener('click', function() {
+            document.getElementById('cancelBtn').addEventListener('click', function () {
                 modal.classList.remove('active');
             });
 
-            // Save
-            document.getElementById('saveBtn').addEventListener('click', function() {
+            document.getElementById('saveBtn').addEventListener('click', function () {
                 const newData = getFormData();
                 saveData(newData);
                 updateDisplay(newData);
+                // Re-trigger animated fill after save
+                setTimeout(() => updateFlightProgress(newData), 80);
                 modal.classList.remove('active');
                 showToast('Contact details saved!', 'success');
             });
 
-            // Close modal on overlay click
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.classList.remove('active');
-                }
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) modal.classList.remove('active');
             });
 
-            // Disable passenger name link default behavior
-            document.getElementById('passengerLink').addEventListener('click', function(e) {
+            document.getElementById('passengerLink').addEventListener('click', function (e) {
                 e.preventDefault();
             });
         });

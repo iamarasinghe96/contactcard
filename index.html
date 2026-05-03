@@ -523,24 +523,6 @@
 
         .parse-result-hint.visible { display: block; }
 
-        .flight-lookup-box {
-            background: rgba(234, 92, 31, 0.05);
-            border: 1px solid rgba(234, 92, 31, 0.2);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .flight-lookup-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
         .btn {
             display: inline-flex;
             align-items: center;
@@ -586,9 +568,6 @@
         .lock-icon svg { width: 24px; height: 24px; color: var(--primary); }
 
         .password-text { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem; }
-
-        .api-key-note { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4; }
-        .api-key-note a { color: var(--primary); }
 
         .toast {
             position: fixed;
@@ -688,11 +667,11 @@
                             <g id="svgPlaneBob">
                                 <!--
                                   Original path is 24×24, pointing UP.
-                                  rotate(-90) makes it point RIGHT.
+                                  rotate(90) clockwise makes the up-pointing path face RIGHT.
                                   scale(0.72) shrinks to ~17 px.
                                   translate(-11.5,-12) centres on origin before rotation.
                                 -->
-                                <g transform="rotate(-90) scale(0.72) translate(-11.5,-12)">
+                                <g transform="rotate(90) scale(0.72) translate(-11.5,-12)">
                                     <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"
                                           fill="#EA5C1F"/>
                                 </g>
@@ -932,35 +911,14 @@
                         <p class="parse-result-hint" id="parseHint"></p>
                     </div>
 
-                    <div class="flight-lookup-box">
-                        <div class="flight-lookup-title">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="M21 21l-4.35-4.35"></path>
-                            </svg>
-                            Flight Lookup
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Flight No.</label>
+                            <input type="text" id="inputFlightNumber" class="form-input" placeholder="e.g. UL604">
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Flight No.</label>
-                                <input type="text" id="inputFlightNumber" class="form-input" placeholder="e.g. EK202">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date</label>
-                                <input type="date" id="inputFlightDate" class="form-input">
-                            </div>
-                        </div>
-                        <button class="btn btn-outline btn-full" id="lookupBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="M21 21l-4.35-4.35"></path>
-                            </svg>
-                            Auto-fill Flight Details
-                        </button>
-                        <div class="form-group" style="margin-top: 1rem; margin-bottom: 0;">
-                            <label class="form-label">API Key (AviationStack)</label>
-                            <input type="text" id="inputApiKey" class="form-input" placeholder="Enter your API key">
-                            <p class="api-key-note">Get a free API key from <a href="https://aviationstack.com/" target="_blank">aviationstack.com</a> (100 requests/month free)</p>
+                        <div class="form-group">
+                            <label class="form-label">Flight Date</label>
+                            <input type="date" id="inputFlightDate" class="form-input">
                         </div>
                     </div>
 
@@ -1058,7 +1016,6 @@
             departureContact:   "+94718739172 - Nuwan",
             destinationAddress: "7/634 Loma Place, Albury NSW 2640",
             destinationContact: "+61 499 736 060 - Guvani",
-            apiKey:             "24c7b84b1acbb9c076d8da633064fe26"
         };
 
         // ── Storage ───────────────────────────────────────────────────────────────
@@ -1265,7 +1222,6 @@
             document.getElementById('inputDepartureContact').value  = data.departureContact || '';
             document.getElementById('inputDestinationAddress').value= data.destinationAddress;
             document.getElementById('inputDestinationContact').value= data.destinationContact || '';
-            document.getElementById('inputApiKey').value            = data.apiKey || '';
         }
 
         function getFormData() {
@@ -1307,7 +1263,6 @@
                 departureContact:   document.getElementById('inputDepartureContact').value,
                 destinationAddress: document.getElementById('inputDestinationAddress').value,
                 destinationContact: document.getElementById('inputDestinationContact').value,
-                apiKey:             document.getElementById('inputApiKey').value
             };
         }
 
@@ -1320,105 +1275,18 @@
             setTimeout(() => { toast.className = 'toast'; }, 3000);
         }
 
-        // ── Time formatter (API response) ─────────────────────────────────────────
-
-        function formatTime(timeStr) {
-            if (!timeStr) return '';
-            const match = timeStr.match(/T(\d{2}):(\d{2})/);
-            if (match) {
-                let hours = parseInt(match[1], 10);
-                const minutes = match[2];
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12 || 12;
-                return `${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-            }
-            return '';
-        }
-
-        // ── Flight API lookup ─────────────────────────────────────────────────────
-
-        async function lookupFlight() {
-            const flightNumber = document.getElementById('inputFlightNumber').value.trim();
-            const apiKey       = document.getElementById('inputApiKey').value.trim();
-
-            if (!flightNumber) { showToast('Please enter a flight number', 'error'); return; }
-            if (!apiKey)       { showToast('Please enter your AviationStack API key', 'error'); return; }
-
-            const lookupBtn   = document.getElementById('lookupBtn');
-            const originalText = lookupBtn.innerHTML;
-            lookupBtn.innerHTML = '<span class="loading"></span>Searching...';
-            lookupBtn.disabled = true;
-
-            try {
-                const apiUrl = `https://api.aviationstack.com/v1/flights?access_key=${apiKey}&flight_iata=${flightNumber}`;
-                const proxies = [
-                    apiUrl,
-                    `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`,
-                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(apiUrl)}`
-                ];
-
-                let data = null, lastError = null;
-
-                for (const proxyUrl of proxies) {
-                    try {
-                        const response = await fetch(proxyUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
-                        if (response.ok) {
-                            const text = await response.text();
-                            data = JSON.parse(text);
-                            if (data && !data.error) break;
-                            if (data.error) {
-                                lastError = data.error.message || data.error.info || 'API error';
-                                if (data.error.code) break;
-                            }
-                        }
-                    } catch (e) { lastError = e.message; continue; }
-                }
-
-                if (!data) throw new Error(lastError || 'Could not connect to flight API');
-                if (data.error) throw new Error(data.error.message || data.error.info || 'API error');
-
-                if (data.data && data.data.length > 0) {
-                    const flight = data.data[0];
-
-                    function extractCityName(name) {
-                        if (!name) return '';
-                        return name.split(' - ')[0].split(' International')[0].split(' Intl')[0]
-                                   .replace(/ Airport$/i, '').replace(/ Airfield$/i, '').trim();
-                    }
-
-                    document.getElementById('inputFromCode').value     = flight.departure?.iata || '';
-                    document.getElementById('inputToCode').value       = flight.arrival?.iata   || '';
-                    document.getElementById('inputFromCity').value     = extractCityName(flight.departure?.airport) || '';
-                    document.getElementById('inputToCity').value       = extractCityName(flight.arrival?.airport)   || '';
-                    document.getElementById('inputDepartureTime').value= formatTime(flight.departure?.scheduled)    || '';
-                    document.getElementById('inputArrivalTime').value  = formatTime(flight.arrival?.scheduled)      || '';
-
-                    // Persist full ISO datetimes so progress / adventure-mode work precisely
-                    const current = loadData();
-                    current.departureDateTime = flight.departure?.scheduled || '';
-                    current.arrivalDateTime   = flight.arrival?.scheduled   || '';
-                    saveData(current);
-
-                    showToast('Flight details loaded successfully!', 'success');
-                } else {
-                    showToast('No flight data found. Try a currently active flight.', 'error');
-                }
-            } catch (error) {
-                console.error('Flight lookup error:', error);
-                showToast('Error: ' + error.message, 'error');
-            } finally {
-                lookupBtn.innerHTML = originalText;
-                lookupBtn.disabled  = false;
-            }
-        }
-
         // ── Paste & Parse ────────────────────────────────────────────────────────
 
         function parseFlightText(raw) {
             const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             const result = {};
 
-            // 1. Airport IATA codes — 3 uppercase letters alone on a line
+            // 1. Flight number — 2 uppercase letters + 3-4 digits (airline IATA format)
+            //    Google Flights copies rarely include it, so this is a best-effort detection.
+            const flightNumRx = raw.match(/\b([A-Z]{2})\s*(\d{3,4})\b/);
+            if (flightNumRx) result.flightNumber = flightNumRx[1] + flightNumRx[2];
+
+            // 2. Airport IATA codes — 3 uppercase letters alone on a line
             const iataCodes = lines.filter(l => /^[A-Z]{3}$/.test(l));
             if (iataCodes.length >= 2) { result.fromCode = iataCodes[0]; result.toCode = iataCodes[1]; }
             else if (iataCodes.length === 1) { result.fromCode = iataCodes[0]; }
@@ -1517,13 +1385,14 @@
             const parsed = parseFlightText(raw);
             const filled = [];
 
-            if (parsed.fromCode)      { document.getElementById('inputFromCode').value      = parsed.fromCode;      filled.push('From'); }
+            if (parsed.flightNumber)  { document.getElementById('inputFlightNumber').value   = parsed.flightNumber;  filled.push('Flight no.'); }
+            if (parsed.fromCode)      { document.getElementById('inputFromCode').value       = parsed.fromCode;      filled.push('From'); }
             if (parsed.toCode)        { document.getElementById('inputToCode').value         = parsed.toCode;        filled.push('To'); }
             if (parsed.fromCity)      { document.getElementById('inputFromCity').value       = parsed.fromCity;      }
             if (parsed.toCity)        { document.getElementById('inputToCity').value         = parsed.toCity;        }
             if (parsed.flightDate)    { document.getElementById('inputFlightDate').value     = parsed.flightDate;    filled.push('Date'); }
-            if (parsed.departureTime) { document.getElementById('inputDepartureTime').value  = parsed.departureTime; filled.push('Dep time'); }
-            if (parsed.arrivalTime)   { document.getElementById('inputArrivalTime').value    = parsed.arrivalTime;   filled.push('Arr time'); }
+            if (parsed.departureTime) { document.getElementById('inputDepartureTime').value  = parsed.departureTime; filled.push('Dep'); }
+            if (parsed.arrivalTime)   { document.getElementById('inputArrivalTime').value    = parsed.arrivalTime;   filled.push('Arr'); }
 
             if (filled.length === 0) {
                 hint.textContent = 'Could not recognise any flight data — try copying more of the page.';
@@ -1531,7 +1400,8 @@
                 hint.classList.add('visible');
                 showToast('Could not parse flight info', 'error');
             } else {
-                hint.textContent = `Filled: ${filled.join(', ')} ✓  — review then hit Save.`;
+                const noFlightNum = !parsed.flightNumber ? ' · Enter flight no. manually.' : '';
+                hint.textContent = `Filled: ${filled.join(', ')} ✓${noFlightNum}`;
                 hint.style.color = '#059669';
                 hint.classList.add('visible');
                 showToast('Flight details parsed!', 'success');
@@ -1584,7 +1454,6 @@
             });
 
             document.getElementById('parseBtn').addEventListener('click', applyParsedFlight);
-            document.getElementById('lookupBtn').addEventListener('click', lookupFlight);
 
             document.getElementById('cancelBtn').addEventListener('click', function () {
                 modal.classList.remove('active');

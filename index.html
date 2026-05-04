@@ -487,6 +487,31 @@
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
+        .addr-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: 1rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .addr-section-label::before, .addr-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--light-grey);
+        }
+
+        .preset-hint {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+        }
+
         .paste-parse-box {
             background: rgba(59, 130, 246, 0.05);
             border: 1px solid rgba(59, 130, 246, 0.25);
@@ -950,6 +975,46 @@
                         </div>
                     </div>
                 </div>
+                    <!-- ── Departure address & contact ── -->
+                    <p class="addr-section-label">Departure</p>
+
+                    <div class="form-group">
+                        <label class="form-label">Quick-select</label>
+                        <select id="depAddrPreset" class="form-input">
+                            <option value="">— choose a preset —</option>
+                        </select>
+                        <p class="preset-hint">Selecting a preset fills the fields below. You can still edit them freely.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Departure Address</label>
+                        <input type="text" id="inputDepartureAddress" class="form-input" placeholder="Street, City">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Departure Contact</label>
+                        <input type="text" id="inputDepartureContact" class="form-input" placeholder="+xx xxx xxx xxxx - Name">
+                    </div>
+
+                    <!-- ── Destination address & contact ── -->
+                    <p class="addr-section-label">Destination</p>
+
+                    <div class="form-group">
+                        <label class="form-label">Quick-select</label>
+                        <select id="destAddrPreset" class="form-input">
+                            <option value="">— choose a preset —</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Destination Address</label>
+                        <input type="text" id="inputDestinationAddress" class="form-input" placeholder="Street, City">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Destination Contact</label>
+                        <input type="text" id="inputDestinationContact" class="form-input" placeholder="+xx xxx xxx xxxx - Name">
+                    </div>
+
+                </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline" id="cancelBtn">Cancel</button>
                     <button class="btn btn-primary" id="saveBtn">Save Changes</button>
@@ -975,6 +1040,14 @@
 
         // ── Google Sheet backend ──────────────────────────────────────────────────
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyUZoI2IxFMWpM8U14sL_2MewmKmFHg30hATd__B3eMbQsaQYfjx4uZNjF4yilLc7qw/exec';
+
+        // ── Address presets ───────────────────────────────────────────────────────
+        const ADDRESS_PRESETS = [
+            { label: '162/1 Xavier rd, Ja-ela · Sudharma',     address: '162/1, Xavier rd, Ja-ela',                  contact: '+94 112 232 172 - Sudharma'  },
+            { label: 'The Heights, Colombo 5 · Ajith',         address: '2C, The Heights, Elvitigala Mw, Colombo 5', contact: '+94 77 771 2459 - Ajith'      },
+            { label: 'Loma Place, Albury NSW · Guvani',        address: 'U7/634, Loma Place, Albury NSW',            contact: '+61 499 736 060 - Guvani'     },
+            { label: 'Xenon Rd, Kalkallo Vic · Nuwan',         address: '26 Xenon Rd, Kalkallo, Vic 3064',           contact: '+61 451 526 520 - Nuwan'      },
+        ];
 
         const FLIGHT_DEFAULTS = {
             flightNumber:       '',
@@ -1244,14 +1317,21 @@
         // ── Form helpers ──────────────────────────────────────────────────────────
 
         function fillForm(flight) {
-            document.getElementById('inputFlightNumber').value  = flight.flightNumber  || '';
-            document.getElementById('inputFlightDate').value    = flight.flightDate    || '';
-            document.getElementById('inputFromCode').value      = flight.fromCode      || '';
-            document.getElementById('inputFromCity').value      = flight.fromCity      || '';
-            document.getElementById('inputToCode').value        = flight.toCode        || '';
-            document.getElementById('inputToCity').value        = flight.toCity        || '';
-            document.getElementById('inputDepartureTime').value = flight.departureTime || '';
-            document.getElementById('inputArrivalTime').value   = flight.arrivalTime   || '';
+            document.getElementById('inputFlightNumber').value       = flight.flightNumber       || '';
+            document.getElementById('inputFlightDate').value         = flight.flightDate         || '';
+            document.getElementById('inputFromCode').value           = flight.fromCode           || '';
+            document.getElementById('inputFromCity').value           = flight.fromCity           || '';
+            document.getElementById('inputToCode').value             = flight.toCode             || '';
+            document.getElementById('inputToCity').value             = flight.toCity             || '';
+            document.getElementById('inputDepartureTime').value      = flight.departureTime      || '';
+            document.getElementById('inputArrivalTime').value        = flight.arrivalTime        || '';
+            document.getElementById('inputDepartureAddress').value   = flight.departureAddress   || '';
+            document.getElementById('inputDepartureContact').value   = flight.departureContact   || '';
+            document.getElementById('inputDestinationAddress').value = flight.destinationAddress || '';
+            document.getElementById('inputDestinationContact').value = flight.destinationContact || '';
+            // Reset preset dropdowns to blank (fields already show the saved values)
+            document.getElementById('depAddrPreset').value  = '';
+            document.getElementById('destAddrPreset').value = '';
         }
 
         function getFormData() {
@@ -1274,16 +1354,20 @@
             }
 
             return {
-                flightNumber: document.getElementById('inputFlightNumber').value,
+                flightNumber:       document.getElementById('inputFlightNumber').value,
                 flightDate,
-                fromCode:     document.getElementById('inputFromCode').value,
-                fromCity:     document.getElementById('inputFromCity').value,
-                toCode:       document.getElementById('inputToCode').value,
-                toCity:       document.getElementById('inputToCity').value,
-                departureTime: depTimeStr,
-                arrivalTime:   arrTimeStr,
+                fromCode:           document.getElementById('inputFromCode').value,
+                fromCity:           document.getElementById('inputFromCity').value,
+                toCode:             document.getElementById('inputToCode').value,
+                toCity:             document.getElementById('inputToCity').value,
+                departureTime:      depTimeStr,
+                arrivalTime:        arrTimeStr,
                 departureDateTime,
                 arrivalDateTime,
+                departureAddress:   document.getElementById('inputDepartureAddress').value,
+                departureContact:   document.getElementById('inputDepartureContact').value,
+                destinationAddress: document.getElementById('inputDestinationAddress').value,
+                destinationContact: document.getElementById('inputDestinationContact').value,
             };
         }
 
@@ -1484,6 +1568,31 @@
 
             passwordInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') document.getElementById('unlockBtn').click();
+            });
+
+            // Populate address preset dropdowns
+            ['depAddrPreset', 'destAddrPreset'].forEach(id => {
+                const sel = document.getElementById(id);
+                ADDRESS_PRESETS.forEach((p, i) => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = p.label;
+                    sel.appendChild(opt);
+                });
+            });
+
+            document.getElementById('depAddrPreset').addEventListener('change', function () {
+                if (this.value === '') return;
+                const p = ADDRESS_PRESETS[this.value];
+                document.getElementById('inputDepartureAddress').value = p.address;
+                document.getElementById('inputDepartureContact').value = p.contact;
+            });
+
+            document.getElementById('destAddrPreset').addEventListener('change', function () {
+                if (this.value === '') return;
+                const p = ADDRESS_PRESETS[this.value];
+                document.getElementById('inputDestinationAddress').value = p.address;
+                document.getElementById('inputDestinationContact').value = p.contact;
             });
 
             document.getElementById('parseBtn').addEventListener('click', applyParsedFlight);

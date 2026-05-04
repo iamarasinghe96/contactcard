@@ -1014,6 +1014,10 @@
                 const res  = await fetch(SHEET_URL + '?t=' + Date.now()); // bust cache
                 const json = await res.json();
                 if (json.error) throw new Error(json.error);
+                // Sanitize time/date fields in case Sheets returns raw date objects
+                json.departureTime = sanitizeTime(json.departureTime);
+                json.arrivalTime   = sanitizeTime(json.arrivalTime);
+                json.flightDate    = sanitizeDate(json.flightDate);
                 cacheFlight(json);
                 return json;
             } catch (e) {
@@ -1034,6 +1038,30 @@
             } catch (e) {
                 console.warn('Sheet save failed:', e.message);
             }
+        }
+
+        // ── Display helpers ───────────────────────────────────────────────────────
+
+        // If a time value arrives as an ISO string (Google Sheets date-object leak),
+        // extract and reformat it as "09:20 AM". Otherwise return it unchanged.
+        function sanitizeTime(val) {
+            if (!val) return '';
+            const iso = String(val).match(/T(\d{2}):(\d{2})/);
+            if (iso) {
+                let h = parseInt(iso[1], 10);
+                const m = iso[2];
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12 || 12;
+                return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+            }
+            return val;
+        }
+
+        // If a date arrives as a full ISO string, trim to YYYY-MM-DD.
+        function sanitizeDate(val) {
+            if (!val) return '';
+            const m = String(val).match(/^(\d{4}-\d{2}-\d{2})/);
+            return m ? m[1] : val;
         }
 
         // ── Date helpers ──────────────────────────────────────────────────────────

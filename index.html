@@ -977,24 +977,33 @@
         const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyUZoI2IxFMWpM8U14sL_2MewmKmFHg30hATd__B3eMbQsaQYfjx4uZNjF4yilLc7qw/exec';
 
         const FLIGHT_DEFAULTS = {
-            flightNumber:      '',
-            flightDate:        '',
-            fromCode:          '',
-            fromCity:          '',
-            toCode:            '',
-            toCity:            '',
-            departureTime:     '',
-            arrivalTime:       '',
-            departureDateTime: '',
-            arrivalDateTime:   ''
+            flightNumber:       '',
+            flightDate:         '',
+            fromCode:           '',
+            fromCity:           '',
+            toCode:             '',
+            toCity:             '',
+            departureTime:      '',
+            arrivalTime:        '',
+            departureDateTime:  '',
+            arrivalDateTime:    '',
+            departureAddress:   '',
+            departureContact:   '',
+            destinationAddress: '',
+            destinationContact: ''
         };
 
-        // Merge flight data with hardcoded personal info into a full display object
+        // Merge sheet flight data with hardcoded PERSONAL constants.
+        // Non-empty sheet values override PERSONAL; empty sheet values fall back to PERSONAL.
         function buildData(flight) {
-            return { ...PERSONAL, ...FLIGHT_DEFAULTS, ...flight };
+            const base = { ...PERSONAL, ...FLIGHT_DEFAULTS };
+            Object.keys(flight).forEach(k => {
+                if (flight[k] !== '' && flight[k] != null) base[k] = flight[k];
+            });
+            return base;
         }
 
-        // Cache flight-only fields to localStorage so the card renders instantly on load
+        // Cache all flight fields (incl. address/contact overrides) to localStorage
         function cacheFlight(flight) {
             const f = {};
             Object.keys(FLIGHT_DEFAULTS).forEach(k => { f[k] = flight[k] || ''; });
